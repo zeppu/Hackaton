@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace GrandPrixApp
@@ -17,7 +18,7 @@ namespace GrandPrixApp
                 {
                     var item = x + (i, j);
 
-                    if (item.Start != item.End)
+                    if (item.Start != item.End && item.Speed < 4)
                     {
 
                         list.Add(item);
@@ -30,7 +31,22 @@ namespace GrandPrixApp
 
         public static Vector MoveForward(this Vector vector)
         {
-            return new Vector((vector.EndX, vector.EndY), (vector.EndX + vector.DiffX, vector.EndY + vector.DiffY));
+            return new Vector((vector.EndX, vector.EndY), (vector.EndX + vector.DiffX, vector.EndY + vector.DiffY), vector);
+        }
+
+        public static bool HasRepeatedAncestor(Vector vector, IList<Coordinate> oldPositions)
+        {
+            if (vector.Parent == null)
+                return false;
+
+            var parentCord = vector.Parent.End;
+
+            if (oldPositions.Contains(parentCord))
+                return true;
+
+            oldPositions.Add(parentCord);
+
+            return HasRepeatedAncestor(vector.Parent, oldPositions);
         }
     }
 }

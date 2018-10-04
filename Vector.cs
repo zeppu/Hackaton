@@ -13,6 +13,8 @@ namespace GrandPrixApp
         public int DiffX => EndX - StartX;
         public int DiffY => EndY - StartY;
         public int Speed => Math.Abs(DiffX) + Math.Abs(DiffY);
+        public Vector Parent { get; }
+        public Guid Id { get; set; } = Guid.NewGuid();
 
         public Vector()
         {
@@ -20,10 +22,11 @@ namespace GrandPrixApp
         }
 
         /// <inheritdoc />
-        public Vector(Coordinate start, Coordinate end)
+        public Vector(Coordinate start, Coordinate end, Vector parent)
         {
             Start = start;
             End = end;
+            Parent = parent;
         }
 
         public static bool operator ==(Vector a, Vector b)
@@ -41,7 +44,7 @@ namespace GrandPrixApp
 
         public static Vector operator +(Vector current, (int X, int Y) that)
         {
-            return new Vector((current.EndX, current.EndY), (current.EndX + that.X, current.EndY + that.Y));
+            return new Vector((current.EndX, current.EndY), (current.EndX + that.X, current.EndY + that.Y), current);
 
         }
     }

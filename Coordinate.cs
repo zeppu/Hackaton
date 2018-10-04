@@ -26,5 +26,15 @@
         {
             return new Coordinate(value.Item1, value.Item2);
         }
+
+        public static bool operator ==(Coordinate first, Coordinate second)
+        {
+            return first.X == second.X && first.Y == second.Y;
+        }
+
+        public static bool operator !=(Coordinate first, Coordinate second)
+        {
+            return !(first == second);
+        }
     }
 }

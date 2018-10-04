@@ -43,7 +43,7 @@ namespace GrandPrixApp
             Console.ReadKey();
 
             var startingPoints = nodelist.Where(m => m.TrackType == NodeType.Start)
-                .Select(m => new Vector(m.Position, m.Position)).ToList();
+                .Select(m => new Vector(m.Position, m.Position, null)).ToList();
 
             ExtractNextGen(gridz, startingPoints,0);
         }
@@ -57,7 +57,10 @@ namespace GrandPrixApp
                 var vectors = nextMove.GenerateAllNextMoves().Where(z => gridz.IsValidNode(z.End)).ToList();
                 nextGenMoves.AddRange(vectors);
             }
-            
+
+            nextGenMoves = nextGenMoves.OrderBy(a => Guid.NewGuid()).Take(30).ToList();
+
+
             foreach (var nextMove in nextGenMoves)
             {
                 Console.SetCursorPosition(nextMove.EndX, nextMove.EndY);
