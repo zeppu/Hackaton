@@ -13,11 +13,12 @@ namespace GrandPrixApp
             var rows = 30;
             var cols = 40;
 
-            var Nodelist = NodeGenerator.GenerateNodes(grid, cols, rows);
-            var gridz = new NodeGrid(Nodelist, cols, rows);
-            foreach (var node in Nodelist)
+            var nodelist = NodeGenerator.GenerateNodes(grid, cols, rows);
+
+            var gridz = new NodeGrid(nodelist, cols, rows);
+            foreach (var node in nodelist)
             {
-                Console.SetCursorPosition(node.X+1, node.Y+1);
+                Console.SetCursorPosition(node.X, node.Y);
                 switch (node.TrackType)
                 {
                     case NodeType.OffTrack:
@@ -28,7 +29,7 @@ namespace GrandPrixApp
                         break;
                     case NodeType.Start:
                         Console.BackgroundColor = ConsoleColor.Red;
-                        break;;
+                        break; ;
                     case NodeType.End:
                         Console.BackgroundColor = ConsoleColor.Green;
                         break;
@@ -40,6 +41,43 @@ namespace GrandPrixApp
 
             Console.BackgroundColor = ConsoleColor.Black;
             Console.ReadKey();
+
+            var startingPoints = nodelist.Where(m => m.TrackType == NodeType.Start)
+                .Select(m => new Vector(m.Position, m.Position));
+
+            var nextMoves = new List<Vector>();
+
+            foreach (var startingPoint in startingPoints)
+            {
+                var moves = startingPoint.GenerateAllNextMoves().ToList();
+                var validMoves = moves.Where(m => gridz.IsValidNode(m.End)).ToList();
+
+                nextMoves.AddRange(validMoves);
+            }
+
+            ExtractNextGen(gridz, nextMoves);
+        }
+
+        private static void ExtractNextGen(NodeGrid gridz, IList<Vector> moves)
+        {
+            var nextGenMoves = new List<Vector>();
+
+            foreach (var nextMove in moves)
+            {
+                var vectors = nextMove.GenerateAllNextMoves().Where(z => gridz.IsValidNode(z.End)).ToList();
+                nextGenMoves.AddRange(vectors);
+            }
+
+            foreach (var nextMove in nextGenMoves)
+            {
+                Console.SetCursorPosition(nextMove.EndX, nextMove.EndY);
+                Console.BackgroundColor = ConsoleColor.DarkGreen;
+                Console.WriteLine(" ");
+            }
+
+            ExtractNextGen(gridz, nextGenMoves);
+            Console.ReadKey();
+
         }
     }
 }

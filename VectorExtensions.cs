@@ -16,7 +16,12 @@ namespace GrandPrixApp
                 for (var j = -1; j <= 1; j++)
                 {
                     var item = x + (i, j);
-                    list.Add(item);
+
+                    if (item.Start != item.End)
+                    {
+
+                        list.Add(item);
+                    }
                 }
             }
 

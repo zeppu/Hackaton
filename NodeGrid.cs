@@ -15,9 +15,29 @@ namespace GrandPrixApp
             Rows = rows;
         }
 
-        public Node GetAt(int column, int row)
+        public Node GetAt(int x, int y)
         {
-            return Nodes[(column * Columns) + row];
+            return Nodes[(y * Columns) + x];
+        }
+
+        public bool IsValidNode(Coordinate coordinate)
+        {
+            if (coordinate.X < 0 || coordinate.X >= Columns)
+            {
+                return false;
+            }
+
+            if(coordinate.Y < 0 || coordinate.Y >= Rows)
+            {
+                return false;
+            }
+
+            if (GetAt(coordinate.X, coordinate.Y).TrackType == NodeType.OffTrack || GetAt(coordinate.X, coordinate.Y).TrackType == NodeType.Start)
+            {
+                return false;
+            }
+
+            return true;
         }
     }
 }
