@@ -6,6 +6,8 @@ namespace GrandPrixApp
 {
     class Program
     {
+        public static IList<Vector> SuccessPaths = new List<Vector>();
+
         static void Main(string[] args)
         {
             var grid =
@@ -54,20 +56,25 @@ namespace GrandPrixApp
 
             foreach (var nextMove in moves)
             {
-                var vectors = nextMove.GenerateAllNextMoves().Where(z => gridz.IsValidNode(z.End)).ToList();
+                var vectors = nextMove.GenerateAllNextMoves()
+                    .Where(z => gridz.IsValidNode(z.End) && !z.HasRepeatedAncestor(new List<Coordinate>())).ToList();
                 nextGenMoves.AddRange(vectors);
             }
 
-            nextGenMoves = nextGenMoves.OrderBy(a => Guid.NewGuid()).Take(30).ToList();
+            nextGenMoves = nextGenMoves.ToList();
 
 
             foreach (var nextMove in nextGenMoves)
             {
-                Console.SetCursorPosition(nextMove.EndX, nextMove.EndY);
-                Console.BackgroundColor = ConsoleColor.DarkGreen;
-                Console.WriteLine(gen);
+                if (gridz.GetAt(nextMove.EndX, nextMove.EndY).TrackType == NodeType.End)
+                {
+                    SuccessPaths.Add(nextMove);
+                }
+//                Console.SetCursorPosition(nextMove.EndX, nextMove.EndY);
+//                Console.BackgroundColor = ConsoleColor.DarkGreen;
+//                Console.WriteLine(gen);
             }
-            Console.ReadKey();
+//            Console.ReadKey();
 
             ExtractNextGen(gridz, nextGenMoves, ++gen);
 

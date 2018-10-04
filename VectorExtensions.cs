@@ -34,19 +34,22 @@ namespace GrandPrixApp
             return new Vector((vector.EndX, vector.EndY), (vector.EndX + vector.DiffX, vector.EndY + vector.DiffY), vector);
         }
 
-        public static bool HasRepeatedAncestor(Vector vector, IList<Coordinate> oldPositions)
+        public static bool HasRepeatedAncestor(this Vector vector, IList<Coordinate> oldPositions)
         {
-            if (vector.Parent == null)
-                return false;
+            while (true)
+            {
+                if (vector.Parent == null)
+                    return false;
 
-            var parentCord = vector.Parent.End;
+                var parentCord = vector.Parent.End;
 
-            if (oldPositions.Contains(parentCord))
-                return true;
+                if (oldPositions.Contains(parentCord))
+                    return true;
 
-            oldPositions.Add(parentCord);
+                oldPositions.Add(parentCord);
 
-            return HasRepeatedAncestor(vector.Parent, oldPositions);
+                vector = vector.Parent;
+            }
         }
     }
 }

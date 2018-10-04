@@ -13,8 +13,8 @@ namespace GrandPrixApp
         public int DiffX => EndX - StartX;
         public int DiffY => EndY - StartY;
         public int Speed => Math.Abs(DiffX) + Math.Abs(DiffY);
+        public int MoveCount { get; set; } = 0;
         public Vector Parent { get; }
-        public Guid Id { get; set; } = Guid.NewGuid();
 
         public Vector()
         {
@@ -27,6 +27,8 @@ namespace GrandPrixApp
             Start = start;
             End = end;
             Parent = parent;
+            if (parent != null)
+                MoveCount = parent.MoveCount + 1;
         }
 
         public static bool operator ==(Vector a, Vector b)
