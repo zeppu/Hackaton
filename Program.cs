@@ -43,22 +43,12 @@ namespace GrandPrixApp
             Console.ReadKey();
 
             var startingPoints = nodelist.Where(m => m.TrackType == NodeType.Start)
-                .Select(m => new Vector(m.Position, m.Position));
+                .Select(m => new Vector(m.Position, m.Position)).ToList();
 
-            var nextMoves = new List<Vector>();
-
-            foreach (var startingPoint in startingPoints)
-            {
-                var moves = startingPoint.GenerateAllNextMoves().ToList();
-                var validMoves = moves.Where(m => gridz.IsValidNode(m.End)).ToList();
-
-                nextMoves.AddRange(validMoves);
-            }
-
-            ExtractNextGen(gridz, nextMoves);
+            ExtractNextGen(gridz, startingPoints,0);
         }
 
-        private static void ExtractNextGen(NodeGrid gridz, IList<Vector> moves)
+        private static void ExtractNextGen(NodeGrid gridz, IEnumerable<Vector> moves, int gen)
         {
             var nextGenMoves = new List<Vector>();
 
@@ -67,16 +57,16 @@ namespace GrandPrixApp
                 var vectors = nextMove.GenerateAllNextMoves().Where(z => gridz.IsValidNode(z.End)).ToList();
                 nextGenMoves.AddRange(vectors);
             }
-
+            
             foreach (var nextMove in nextGenMoves)
             {
                 Console.SetCursorPosition(nextMove.EndX, nextMove.EndY);
                 Console.BackgroundColor = ConsoleColor.DarkGreen;
-                Console.WriteLine(" ");
+                Console.WriteLine(gen);
             }
-
-            ExtractNextGen(gridz, nextGenMoves);
             Console.ReadKey();
+
+            ExtractNextGen(gridz, nextGenMoves, ++gen);
 
         }
     }
