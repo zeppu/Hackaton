@@ -14,7 +14,7 @@ namespace GrandPrixApp
         public int DiffY => EndY - StartY;
         public int Speed => Math.Abs(DiffX) + Math.Abs(DiffY);
         public int MoveCount { get; set; } = 0;
-        public Vector Parent { get; }
+        public Vector Parent { get; set; }
 
         public Vector()
         {

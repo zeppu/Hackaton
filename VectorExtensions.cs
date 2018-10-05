@@ -17,8 +17,9 @@ namespace GrandPrixApp
                 for (var j = -1; j <= 1; j++)
                 {
                     var item = x + (i, j);
+                    item.Parent = x.Parent;
 
-                    if (item.Start != item.End && item.Speed < 4)
+                    if (vector.End != item.End)
                     {
 
                         list.Add(item);
@@ -36,20 +37,25 @@ namespace GrandPrixApp
 
         public static bool HasRepeatedAncestor(this Vector vector, IList<Coordinate> oldPositions)
         {
-            while (true)
+
+            var temp = vector;
+            var count = 0;
+            while (++count < 40)
             {
-                if (vector.Parent == null)
+                if (temp.Parent == null)
                     return false;
 
-                var parentCord = vector.Parent.End;
+                var parentCord = temp.Parent.End;
 
-                if (oldPositions.Contains(parentCord))
+                if (oldPositions.Any(m => parentCord == m))
                     return true;
 
                 oldPositions.Add(parentCord);
 
-                vector = vector.Parent;
+                temp = temp.Parent;
             }
+
+            return false;
         }
     }
 }
