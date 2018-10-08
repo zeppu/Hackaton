@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace GrandPrixApp
 {
@@ -49,5 +50,5 @@ namespace GrandPrixApp
             return new Vector((current.EndX, current.EndY), (current.EndX + that.X, current.EndY + that.Y), current);
 
         }
-    }
+	}
 }

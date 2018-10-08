@@ -47,32 +47,50 @@ namespace GrandPrixApp
         }
     }
 
+	public class Fitness
+	{
+		public Node ClosestNode { get; set; }
+		public int Distance { get; set; }
+		public Vector Point { get; set; }
+		public int Value => ClosestNode.PathLength * (20 - Distance);
+	}
+
     public static class NodeGridExtensions
     {
         public const int MAX_DISTANCE = 5;
 
-        public static (Node node, int distance) FindClosestWinner(this NodeGrid grid, Coordinate point)
+        public static Fitness FindClosestWinner(this NodeGrid grid, Vector vector)
         {
             var distance = 0;
-            var node = grid.GetAt(point);
+	        
+            var node = grid.GetAt(vector.End);
             if (node.IsWinner)
             {
-                return (node, distance);
+	            return new Fitness()
+	            {
+		            ClosestNode = node,
+		            Distance = distance,
+		            Point = vector
+	            };
             }
 
             distance++;
 
             for (var i = distance; i < MAX_DISTANCE; i++)
             {
-                var winner = GetNeighbours(node.Position, i).FirstOrDefault(m => grid.GetAt(m).IsWinner);
+                var winner = GetNeighbours(node.Position, i).FirstOrDefault(m => grid.IsValidNode(m) && grid.GetAt(m).IsWinner);
                 if (winner != null)
-                    return (grid.GetAt(winner), i);
+	                return new Fitness()
+	                {
+		                ClosestNode = grid.GetAt(winner),
+		                Distance = i,
+		                Point = vector
+	                };
             }
 
-            return (null, -1);
+	        return null;
         }
-
-        
+		
 
         private static IList<Coordinate> GetNeighbours(Coordinate point, int distance)
         {
