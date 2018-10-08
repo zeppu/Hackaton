@@ -47,54 +47,70 @@ namespace GrandPrixApp
         }
     }
 
-	public class Fitness
-	{
-		public Node ClosestNode { get; set; }
-		public int Distance { get; set; }
-		public Vector Point { get; set; }
-		public int Value => ClosestNode.PathLength * (20 - Distance);
-	}
+    public class Fitness
+    {
+        public Node ClosestNode { get; set; }
+        public int Distance { get; set; }
+        public IList<Move> Movelist { get; set; }
+
+        public int Value
+        {
+            get
+            {
+                if (ClosestNode == null)
+                {
+                    return 0;
+                }
+                return (ClosestNode.PathLength * (20 - Distance)) / Movelist.Count;
+            }
+        }
+    }
 
     public static class NodeGridExtensions
     {
         public const int MAX_DISTANCE = 5;
 
-        public static Fitness FindClosestWinner(this NodeGrid grid, Vector vector)
+        public static Fitness FindClosestWinner(this NodeGrid grid, IList<Move> movelist)
         {
             var distance = 0;
-	        
-            var node = grid.GetAt(vector.End);
+            var final = movelist.Last().End;
+
+            var node = grid.GetAt(final);
             if (node.IsWinner)
             {
-	            return new Fitness()
-	            {
-		            ClosestNode = node,
-		            Distance = distance,
-		            Point = vector
-	            };
+                return new Fitness
+                {
+                    ClosestNode = node,
+                    Distance = distance,
+                    Movelist = movelist
+                };
             }
 
             distance++;
 
             for (var i = distance; i < MAX_DISTANCE; i++)
             {
-                var winner = GetNeighbours(node.Position, i).FirstOrDefault(m => grid.IsValidNode(m) && grid.GetAt(m).IsWinner);
+                var winner = GetNeighbours(final, i).FirstOrDefault(m => grid.IsValidNode(m) && grid.GetAt(m).IsWinner);
                 if (winner != null)
-	                return new Fitness()
-	                {
-		                ClosestNode = grid.GetAt(winner),
-		                Distance = i,
-		                Point = vector
-	                };
+                {
+                    return new Fitness
+                    {
+                        ClosestNode = grid.GetAt(winner),
+                        Distance = i,
+                        Movelist = movelist
+                    };
+                }
             }
 
-	        return null;
+            return new Fitness()
+            {
+                Movelist = movelist
+            };
         }
-		
 
-        private static IList<Coordinate> GetNeighbours(Coordinate point, int distance)
+        private static IEnumerable<Coordinate> GetNeighbours(Coordinate point, int distance)
         {
-            var result = new List<Coordinate>()
+            var result = new List<Coordinate>
             {
                 point + (-distance, -distance),
                 point + (-distance, distance),
