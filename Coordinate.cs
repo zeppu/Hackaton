@@ -1,4 +1,6 @@
-﻿namespace GrandPrixApp
+﻿using System.Collections.Generic;
+
+namespace GrandPrixApp
 {
     public class Coordinate
     {
@@ -42,10 +44,15 @@
             return first.Equals(second);
         }
 
-
         public static bool operator !=(Coordinate first, Coordinate second)
         {
             return !(first == second);
+        }
+
+        public static IList<Move> operator* (Coordinate startingPosition, IEnumerable<int> offsets)
+        {
+
+            return (Move) startingPosition * offsets;
         }
 
         /// <inheritdoc />

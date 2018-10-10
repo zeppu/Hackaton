@@ -26,6 +26,8 @@ namespace GrandPrixApp
             return GetAt(coordinate.X, coordinate.Y);
         }
 
+        public IEnumerable<Node> StartingLocations => Nodes.Where(m => m.TrackType == NodeType.Start);
+
         public bool IsValidNode(Coordinate coordinate)
         {
             if (coordinate.X < 0 || coordinate.X >= Columns)

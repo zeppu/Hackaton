@@ -9,6 +9,7 @@ namespace GrandPrixApp
     internal class Program
 	{
 		public static IList<Vector> SuccessPaths = new List<Vector>();
+        public static Random RandomGenerator = new Random();
 
 		private static void Main(string[] args)
         {
@@ -91,6 +92,7 @@ namespace GrandPrixApp
             //            ExtractNextGen(nodeGrid, startingPoints, 0);
 
             Console.SetCursorPosition(0, 60);
+            Console.BackgroundColor = ConsoleColor.Black;
             Console.WriteLine(winner.PathLength);
 
             //
@@ -149,53 +151,69 @@ namespace GrandPrixApp
             //			Console.WriteLine(winningPath.MoveCount);
             //			DrawCoordinates(items.Select(m => m.End).Reverse(), ConsoleColor.DarkGreen, delay: 100);
 
-            Movement startingMovement = (0, 0);
+            var generator = new GenerationService(RandomGenerator, nodeGrid);
+            var generation = generator.Generate(50, 5);
 
-            var moveLists = new List<IList<Move>>();
+            var moveLists = generation.Individuals.Select(m => m.MoveList).ToList();
+            
+//            
+//            var moveLists = new List<IList<Move>>();
+//
+//            //var startingPositions = startingNodes.Select(m => m.Position).ToList();
+//            var startingPositions = new List<Coordinate>
+//            {
+//                (25, 25)
+//            };
+//
+//            DrawCoordinates(startingPositions, ConsoleColor.Red);
+//
+//            for (var i = 0; i < 50; i++)
+//            {
+//                var startingPoint = startingPositions.Random();
+//
+//                IList<int> gene = new List<int>();
+//
+//                for (var j = 0; j < 10; j++)
+//                {
+//                    gene.Add(RandomGenerator.Next(0, 8));
+//                }
+//
+//                moveLists.Add(startingPoint * gene);
+//            }
 
+                DrawCoordinates(moveLists.Select(m => m.Last().End), ConsoleColor.Cyan, delay: 10);
 
+//            foreach (var moveList in moveLists)
+//            {
+//                DrawCoordinates(moveList.Select(m=> m.End).ToList(), ConsoleColor.Blue, delay: 10);
+//                Thread.Sleep(50);
+//            }
 
+            var fitnessGenerator = new FitnessFunctionEvaluator(nodeGrid);
 
-            for (var i = 0; i < 50; i++)
-            {
-                var startingPoint = startingNodes.Random().Position;
-                var startingMove = new Move()
-                {
-                    End = startingPoint,
-                    Movement = startingMovement
-                };
+            var health = generation.Individuals.Select(m => fitnessGenerator.GetFitness(m))
+                .OrderByDescending(m => m.Fitness).Cast<IndividualFitness>().ToList();
 
-                var moveList = new List<Move> { startingMove };
-                var nextMove = startingMove;
-
-                for (var j = 0; j < 9; j++)
-                {
-                    nextMove = nextMove.GetNextMoves().Where(m => nodeGrid.IsValidNode(m.End)).Random();
-                    if (nextMove == null)
-                        break;
-
-                    moveList.Add(nextMove);
-                }
-
-                moveLists.Add(moveList);
-            }
-
-            var results = moveLists.Select(m => nodeGrid.FindClosestWinner(m)).OrderByDescending(m => m.Value).ToList();
-
-            foreach (var moveList in results)
-            {
-                var last = moveList.Movelist.Last();
-                DrawCoordinate(last.End, ConsoleColor.Blue, moveList.Movelist.Count.ToString());
-                Thread.Sleep(200);
-            }
-
-            var fittest = results.Take(10);
-            foreach (var moveList in fittest)
-            {
-                var last = moveList.Movelist.Last();
-                DrawCoordinate(last.End, ConsoleColor.Red, moveList.Movelist.Count.ToString());
-                Thread.Sleep(200);
-            }
+            DrawCoordinates(
+                health.OrderByDescending(m=> m.DistanceFromStart)
+                .Select(m => m.Individual.MoveList[m.MoveCount-1].End).Take(5), ConsoleColor.DarkRed, delay: 100);
+//
+//            var results = moveLists.Select(m => nodeGrid.FindClosestWinner(m)).OrderByDescending(m => m.Value).ToList();
+//
+//            foreach (var moveList in results)
+//            {
+//                var last = moveList.Movelist.Last();
+//                DrawCoordinate(last.End, ConsoleColor.Blue, moveList.Movelist.Count.ToString());
+//                Thread.Sleep(200);
+//            }
+//
+//            var fittest = results.Take(10);
+//            foreach (var moveList in fittest)
+//            {
+//                var last = moveList.Movelist.Last();
+//                DrawCoordinate(last.End, ConsoleColor.Red, moveList.Movelist.Count.ToString());
+//                Thread.Sleep(200);
+//            }
 
 
             Console.ReadLine();
@@ -299,15 +317,22 @@ namespace GrandPrixApp
 			int delay = 0)
 		{
 			Console.BackgroundColor = color;
-			foreach (var point in points)
-			{
-				Console.SetCursorPosition(point.X, point.Y);
-				Console.Write(text);
-				if (delay > 0)
-				{
-					Thread.Sleep(delay);
-				}
-			}
+		    try
+		    {
+		        foreach (var point in points)
+		        {
+		            Console.SetCursorPosition(point.X, point.Y);
+		            Console.Write(text);
+		            if (delay > 0)
+		            {
+		                Thread.Sleep(delay);
+		            }
+		        }
+		    }
+		    catch (Exception e)
+		    {
+		        // ignored
+		    }
 		}
 
 		private static void DrawCoordinate(Coordinate point, ConsoleColor color, string text = " ")
